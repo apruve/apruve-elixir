@@ -1,0 +1,16 @@
+language:
+  elixir
+
+matrix:
+  include:
+    - otp_release: 18.3
+      elixir: 1.4.5
+    - otp_release: 21.0
+      elixir: 1.7.2
+
+script:
+  - if [[ `elixir -v` = *"1.7"* ]]; then mix format --check-formatted; fi
+  - mix test
+
+sudo:
+  false
