@@ -7,6 +7,8 @@ defmodule Apruve.MixProject do
       version: "0.1.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
+      name: "Apruve",
+      source_url: "https://github.com/elixir-ecto/postgrex",
       deps: deps()
     ]
   end
@@ -23,6 +25,17 @@ defmodule Apruve.MixProject do
     [
       {:hackney, "~> 1.6"},
       {:jason, "~> 1.1"}
+    ]
+  end
+
+  defp description() do
+   "The official Apruve plugin for Elixir"
+  end
+
+  defp package() do
+    [
+      licenses: ["Mozilla 2.0"],
+      links: %{"GitHub" => "https://github.com/apruve/apruve-elixir"}
     ]
   end
 end
