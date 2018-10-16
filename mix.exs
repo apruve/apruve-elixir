@@ -9,6 +9,8 @@ defmodule Apruve.MixProject do
       start_permanent: Mix.env() == :prod,
       name: "Apruve",
       source_url: "https://github.com/elixir-ecto/postgrex",
+      description: description(),
+      package: package(),
       deps: deps()
     ]
   end
@@ -24,7 +26,8 @@ defmodule Apruve.MixProject do
   defp deps do
     [
       {:hackney, "~> 1.6"},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 
