@@ -8,7 +8,7 @@ by adding `apruve` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:apruve, git: "https://example.com/apruve-tmp.git"}
+    {:apruve, "~> 0.1.0"},
   ]
 end
 ```
