@@ -39,17 +39,6 @@ defmodule Apruve.Util do
     end)
   end
 
-  # Either get from application config if :from_app_config or
-  # pass through a struct.
-  @doc false
-  def get_client_config(:from_app_config) do
-    Apruve.ClientConfig.from_application_config()
-  end
-
-  def get_client_config(%Apruve.ClientConfig{} = p_config) do
-    {:ok, p_config}
-  end
-
   @doc """
   Converts a list of structs to a list of non-struct maps.
   Returns `nil` if passed `nil`.

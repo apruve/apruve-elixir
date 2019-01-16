@@ -1,6 +1,8 @@
 defmodule Apruve.OrderItem do
   @moduledoc """
   Module for Apruve order items.
+
+  It provides a struct and is used by the `Apruve.Order` module.
   """
 
   defstruct [
@@ -20,7 +22,9 @@ defmodule Apruve.OrderItem do
   ]
 
   alias __MODULE__
+  @type t :: %OrderItem{}
 
+  @spec from_parsed_json([map()]) :: [t]
   def from_parsed_json(json_parsed) do
     keys = %Apruve.OrderItem{} |> Map.from_struct() |> Map.keys()
 

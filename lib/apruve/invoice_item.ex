@@ -1,6 +1,8 @@
 defmodule Apruve.InvoiceItem do
   @moduledoc """
   Module for Apruve invoice items.
+
+  It provides a struct and is used by the `Apruve.Invoice` module.
   """
 
   defstruct [
@@ -16,8 +18,10 @@ defmodule Apruve.InvoiceItem do
   ]
 
   alias __MODULE__
+  @type t :: %InvoiceItem{}
 
-  @spec from_parsed_json([map()]) :: [%InvoiceItem{}]
+  @doc false
+  @spec from_parsed_json([map()]) :: [t]
   def from_parsed_json(json_parsed) do
     keys = %Apruve.InvoiceItem{} |> Map.from_struct() |> Map.keys()
 

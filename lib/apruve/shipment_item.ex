@@ -1,6 +1,8 @@
 defmodule Apruve.ShipmentItem do
   @moduledoc """
   Module for Apruve shipment items.
+
+  It provides a struct and is used by the `Apruve.Shipment` module.
   """
 
   defstruct [
@@ -24,8 +26,10 @@ defmodule Apruve.ShipmentItem do
   ]
 
   alias __MODULE__
+  @type t :: %ShipmentItem{}
 
-  @spec from_parsed_json([map()]) :: [%ShipmentItem{}]
+  @doc false
+  @spec from_parsed_json([map()]) :: [t]
   def from_parsed_json(json_parsed) do
     keys = %Apruve.ShipmentItem{} |> Map.from_struct() |> Map.keys()
 

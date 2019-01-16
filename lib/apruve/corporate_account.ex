@@ -31,15 +31,18 @@ defmodule Apruve.CorporateAccount do
   @type t :: %CorporateAccount{}
   @type email_address :: String.t()
 
-  @spec get_by_merchant_id_and_email(
-          Merchant.merchant_id(),
-          email_address,
-          ClientConfig.t() | :from_app_config
-        ) :: {:ok, t()} | {:error, any()}
-  def get_by_merchant_id_and_email(merchant_id, email, p_client_config \\ :from_app_config) do
+  @doc """
+  Get a `CorporateAccount` struct by providing a merchant_id and an email address.
+  """
+  @spec get_by_merchant_id_and_email(Merchant.merchant_id(), email_address, ClientConfig.t()) ::
+          {:ok, t()} | {:error, any()}
+  def get_by_merchant_id_and_email(
+        merchant_id,
+        email,
+        client_config \\ ClientConfig.from_application_config!()
+      ) do
     result =
-      with {:ok, client_config} <- Util.get_client_config(p_client_config),
-           {:ok, body, _, _} <-
+      with {:ok, body, _, _} <-
              client_config.adapter.get(
                "merchants/#{merchant_id}/corporate_accounts?email=#{email}",
                client_config
@@ -57,12 +60,14 @@ defmodule Apruve.CorporateAccount do
     end
   end
 
-  @spec all_by_merchant_id(Merchant.merchant_id(), ClientConfig.t() | :from_app_config) ::
+  @doc """
+  Get a Merchant struct by merchant id.
+  """
+  @spec all_by_merchant_id(Merchant.merchant_id(), ClientConfig.t()) ::
           {:ok, [t()]} | {:error, any()}
-  def all_by_merchant_id(merchant_id, p_client_config \\ :from_app_config) do
+  def all_by_merchant_id(merchant_id, client_config \\ ClientConfig.from_application_config!()) do
     result =
-      with {:ok, client_config} <- Util.get_client_config(p_client_config),
-           {:ok, body, _, _} <-
+      with {:ok, body, _, _} <-
              client_config.adapter.get(
                "merchants/#{merchant_id}/corporate_accounts",
                client_config

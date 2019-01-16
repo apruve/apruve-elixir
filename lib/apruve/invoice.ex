@@ -32,11 +32,13 @@ defmodule Apruve.Invoice do
   @type invoice_id :: String.t()
   @type t :: %Invoice{}
 
-  @spec get(invoice_id, ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any()}
-  def get(invoice_id, p_client_config \\ :from_app_config) do
+  @doc """
+  Get an invoice by invoice id.
+  """
+  @spec get(invoice_id, ClientConfig.t()) :: {:ok, t()} | {:error, any()}
+  def get(invoice_id, client_config \\ ClientConfig.from_application_config!()) do
     parsed_result =
-      with {:ok, client_config} <- Util.get_client_config(p_client_config),
-           {:ok, body, _, _} <-
+      with {:ok, body, _, _} <-
              client_config.adapter.get("invoices/#{invoice_id}", client_config),
            {:ok, invoice_struct} <- from_json(body) do
         {:ok, invoice_struct}
@@ -57,11 +59,10 @@ defmodule Apruve.Invoice do
   @doc """
   Get all invoices belonging to a certain order.
   """
-  @spec all_by_order_id(String.t(), ClientConfig.t() | :from_app_config) ::
+  @spec all_by_order_id(String.t(), ClientConfig.t()) ::
           {:ok, [t()]} | {:error, any}
-  def all_by_order_id(order_id, p_client_config \\ :from_app_config) do
-    with {:ok, client_config} <- Util.get_client_config(p_client_config),
-         {:ok, body, _, _} <-
+  def all_by_order_id(order_id, client_config \\ ClientConfig.from_application_config!()) do
+    with {:ok, body, _, _} <-
            client_config.adapter.get("orders/#{order_id}/invoices", client_config),
          {:ok, invoice_struct_list} <- from_json(body) do
       {:ok, invoice_struct_list}
@@ -74,8 +75,8 @@ defmodule Apruve.Invoice do
   The `invoice_items` field of the `%Apruve.Invoice{}` struct should be a list of
   `%Apruve.InvoiceItem{}`.
   """
-  @spec create(t(), ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any}
-  def create(invoice, p_client_config \\ :from_app_config) do
+  @spec create(t(), ClientConfig.t()) :: {:ok, t()} | {:error, any}
+  def create(invoice, client_config \\ ClientConfig.from_application_config!()) do
     with :ok <-
            Util.validate_not_nil(invoice, [
              :order_id,
@@ -83,7 +84,6 @@ defmodule Apruve.Invoice do
              :invoice_items,
              :issue_on_create
            ]),
-         {:ok, client_config} <- Util.get_client_config(p_client_config),
          {:ok, invoice_json} <- to_json(invoice) do
       case client_config.adapter.post("invoices", invoice_json, client_config) do
         {:ok, returned_json_string, 201, _} ->
@@ -98,49 +98,49 @@ defmodule Apruve.Invoice do
   @doc """
   Issue an already existing invoice.
   """
-  @spec issue(invoice_id, ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any}
-  def issue(invoice_id, p_client_config \\ :from_app_config) when is_binary(invoice_id) do
-    post_action_to_invoice("issue", invoice_id, p_client_config)
+  @spec issue(invoice_id, ClientConfig.t()) :: {:ok, t()} | {:error, any}
+  def issue(invoice_id, client_config \\ ClientConfig.from_application_config!())
+      when is_binary(invoice_id) do
+    post_action_to_invoice("issue", invoice_id, client_config)
   end
 
   @doc """
   Close an invoice.
   """
-  @spec close(invoice_id, ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any}
-  def close(invoice_id, p_client_config \\ :from_app_config) when is_binary(invoice_id) do
-    post_action_to_invoice("close", invoice_id, p_client_config)
+  @spec close(invoice_id, ClientConfig.t()) :: {:ok, t()} | {:error, any}
+  def close(invoice_id, client_config \\ ClientConfig.from_application_config!())
+      when is_binary(invoice_id) do
+    post_action_to_invoice("close", invoice_id, client_config)
   end
 
   @doc """
   Cancel an invoice.
   """
-  @spec cancel(invoice_id, ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any}
-  def cancel(invoice_id, p_client_config \\ :from_app_config) when is_binary(invoice_id) do
-    post_action_to_invoice("cancel", invoice_id, p_client_config)
+  @spec cancel(invoice_id, ClientConfig.t()) :: {:ok, t()} | {:error, any}
+  def cancel(invoice_id, client_config \\ ClientConfig.from_application_config!())
+      when is_binary(invoice_id) do
+    post_action_to_invoice("cancel", invoice_id, client_config)
   end
 
-  @spec post_action_to_invoice(String.t(), invoice_id, ClientConfig.t() | :from_app_config) ::
+  @spec post_action_to_invoice(String.t(), invoice_id, ClientConfig.t()) ::
           {:ok, t()} | {:error, any}
-  defp post_action_to_invoice(action, invoice_id, p_client_config)
+  defp post_action_to_invoice(action, invoice_id, client_config)
        when is_binary(invoice_id) and is_binary(action) do
-    with {:ok, client_config} <- Util.get_client_config(p_client_config) do
-      case client_config.adapter.post("invoices/#{invoice_id}/#{action}", "", client_config) do
-        {:ok, returned_json_string, 200, _} ->
-          from_json(returned_json_string)
+    case client_config.adapter.post("invoices/#{invoice_id}/#{action}", "", client_config) do
+      {:ok, returned_json_string, 200, _} ->
+        from_json(returned_json_string)
 
-        {:error, _} = error ->
-          error
-      end
+      {:error, _} = error ->
+        error
     end
   end
 
   @doc """
   Update an invoice on the Apruve system.
   """
-  @spec update(t, ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any}
-  def update(invoice, p_client_config \\ :from_app_config) do
-    with {:ok, client_config} <- Util.get_client_config(p_client_config),
-         {:ok, invoice_json} <- to_json(invoice) do
+  @spec update(t, ClientConfig.t()) :: {:ok, t()} | {:error, any}
+  def update(invoice, client_config \\ ClientConfig.from_application_config!()) do
+    with {:ok, invoice_json} <- to_json(invoice) do
       case client_config.adapter.put("invoices", invoice_json, client_config) do
         {:ok, returned_json_string, _, _} ->
           from_json(returned_json_string)

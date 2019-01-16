@@ -1,9 +1,9 @@
 defmodule Apruve.Order.SecureHash do
   alias Apruve.Order
 
-  @moduledoc """
-  Helper module for calculating the Order secure hash.
-  """
+  @moduledoc false
+
+  # Helper module for calculating the Order secure hash.
 
   @doc """
   Calculates the secure hash.
