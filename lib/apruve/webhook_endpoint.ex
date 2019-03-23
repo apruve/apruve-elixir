@@ -23,11 +23,10 @@ defmodule Apruve.WebhookEndpoint do
   @doc """
   Get all webhook endpoints belonging to a merchant. By merchant id.
   """
-  @spec all_by_merchant_id(Merchant.merchant_id(), ClientConfig.t() | :from_app_config) ::
+  @spec all_by_merchant_id(Merchant.merchant_id(), ClientConfig.t()) ::
           {:ok, [t()]} | {:error, any}
-  def all_by_merchant_id(merchant_id, p_client_config \\ :from_app_config) do
-    with {:ok, client_config} <- Util.get_client_config(p_client_config),
-         {:ok, body, _, _} <-
+  def all_by_merchant_id(merchant_id, client_config \\ ClientConfig.from_application_config!()) do
+    with {:ok, body, _, _} <-
            client_config.adapter.get("merchants/#{merchant_id}/webhook_endpoints", client_config),
          {:ok, struct_list} <- from_json(body) do
       {:ok, struct_list}
@@ -37,12 +36,15 @@ defmodule Apruve.WebhookEndpoint do
   @doc """
   Get a single webhook endpoint by merchant id and webhook endpoint id.
   """
-  @spec get(Merchant.merchant_id(), webhook_endpoint_id, ClientConfig.t() | :from_app_config) ::
+  @spec get(Merchant.merchant_id(), webhook_endpoint_id, ClientConfig.t()) ::
           {:ok, t()} | {:error, any()}
-  def get(merchant_id, webhook_endpoint_id, p_client_config \\ :from_app_config) do
+  def get(
+        merchant_id,
+        webhook_endpoint_id,
+        client_config \\ ClientConfig.from_application_config!()
+      ) do
     parsed_result =
-      with {:ok, client_config} <- Util.get_client_config(p_client_config),
-           {:ok, body, _, _} <-
+      with {:ok, body, _, _} <-
              client_config.adapter.get(
                "merchants/#{merchant_id}/webhook_endpoints/#{webhook_endpoint_id}",
                client_config
@@ -65,10 +67,9 @@ defmodule Apruve.WebhookEndpoint do
 
   `version` should be "v4"
   """
-  @spec create(t(), ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any}
-  def create(webhook_endpoint, p_client_config \\ :from_app_config) do
+  @spec create(t(), ClientConfig.t()) :: {:ok, t()} | {:error, any}
+  def create(webhook_endpoint, client_config \\ ClientConfig.from_application_config!()) do
     with :ok <- Util.validate_not_nil(webhook_endpoint, [:merchant_id, :url, :version]),
-         {:ok, client_config} <- Util.get_client_config(p_client_config),
          {:ok, json} <- to_json(webhook_endpoint) do
       case client_config.adapter.post(
              "merchants/#{webhook_endpoint.merchant_id}/webhook_endpoints",
@@ -87,20 +88,22 @@ defmodule Apruve.WebhookEndpoint do
   @doc """
   Delete a webhook endpoint by merchant id and webhook endpoint id.
   """
-  @spec delete(Merchant.merchant_id(), webhook_endpoint_id, ClientConfig.t() | :from_app_config) ::
+  @spec delete(Merchant.merchant_id(), webhook_endpoint_id, ClientConfig.t()) ::
           :ok | {:error, any}
-  def delete(merchant_id, webhook_endpoint_id, p_client_config \\ :from_app_config) do
-    with {:ok, client_config} <- Util.get_client_config(p_client_config) do
-      case client_config.adapter.delete(
-             "merchants/#{merchant_id}/webhook_endpoints/#{webhook_endpoint_id}",
-             client_config
-           ) do
-        {:ok, _returned_json_string, _, _} ->
-          :ok
+  def delete(
+        merchant_id,
+        webhook_endpoint_id,
+        client_config \\ ClientConfig.from_application_config!()
+      ) do
+    case client_config.adapter.delete(
+           "merchants/#{merchant_id}/webhook_endpoints/#{webhook_endpoint_id}",
+           client_config
+         ) do
+      {:ok, _returned_json_string, _, _} ->
+        :ok
 
-        {:error, _} = error ->
-          error
-      end
+      {:error, _} = error ->
+        error
     end
   end
 

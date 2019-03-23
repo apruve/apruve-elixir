@@ -1,4 +1,6 @@
-# Apruve
+![Apruve logo](https://raw.githubusercontent.com/apruve/apruve-elixir/master/logo.png)
+
+[Documentation is available at hexdocs.pm](https://hexdocs.pm/apruve/)
 
 ## Installation
 
@@ -8,7 +10,7 @@ by adding `apruve` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:apruve, "~> 0.1.0"},
+    {:apruve, "~> 0.2.0"},
   ]
 end
 ```
@@ -30,15 +32,18 @@ config :apruve,
   }
 ```
 
-When this is set, the atom `:from_app_config` can be passed instead of a ClientConfig struct.
+When this is set, it is not necessary to pass a `%Apruve.ClientConfig{}` struct to the functions. By default, the client configuration is instead read from the app configuration set as described above.
 
 ## Examples
 
-### Get an order by order id passing configuration in a struct
-`{:ok, order} = Apruve.Order.get("719101ae45b8fab4fb542ed65b455635", %Apruve.ClientConfig{adapter: Apruve.Adapters.Hackney, scheme: "https", hostname: "test.apruve.com", api_key: "API KEY GOES HERE"})`
-
 ### Get an order by order id using the application config
-`{:ok, order} = Apruve.Order.get("719101ae45b8fab4fb542ed65b455635", :from_app_config)`
+`{:ok, order} = Apruve.Order.get("719101ae45b8fab4fb542ed65b455635")`
+
+### Get an order by order id passing configuration in a struct
+
+Alternatively the client information such as the API key can be passed in a `ClientConfig` struct instead of being read from the configuration:
+
+`{:ok, order} = Apruve.Order.get("719101ae45b8fab4fb542ed65b455635", %Apruve.ClientConfig{adapter: Apruve.Adapters.Hackney, scheme: "https", hostname: "test.apruve.com", api_key: "API KEY GOES HERE"})`
 
 ## Datetimes
 

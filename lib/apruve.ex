@@ -1,5 +1,3 @@
 defmodule Apruve do
-  @moduledoc """
-  Documentation for Apruve.
-  """
+  @moduledoc File.read!("README.md")
 end

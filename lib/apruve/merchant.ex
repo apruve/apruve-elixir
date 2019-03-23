@@ -12,11 +12,13 @@ defmodule Apruve.Merchant do
   @type merchant_id :: String.t()
   @type t :: %Merchant{}
 
-  @spec get(merchant_id, ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any()}
-  def get(merchant_id, p_client_config \\ :from_app_config) do
+  @doc """
+  Get merchant by merchant id.
+  """
+  @spec get(merchant_id, ClientConfig.t()) :: {:ok, t()} | {:error, any()}
+  def get(merchant_id, client_config \\ ClientConfig.from_application_config!()) do
     result =
-      with {:ok, client_config} <- Util.get_client_config(p_client_config),
-           {:ok, body, _, _} <-
+      with {:ok, body, _, _} <-
              client_config.adapter.get("merchants/#{merchant_id}", client_config),
            {:ok, merchant_struct} <- from_json(body) do
         {:ok, merchant_struct}

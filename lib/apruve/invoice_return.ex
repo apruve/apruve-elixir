@@ -24,15 +24,21 @@ defmodule Apruve.InvoiceReturn do
   @type t :: %InvoiceReturn{}
   @type invoice_return_id :: String.t()
 
+  @doc """
+  Get invoice return by invoice id and return id.
+  """
   @spec get_by_invoice_id_and_return_id(
           Invoice.invoice_id(),
           invoice_return_id,
-          ClientConfig.t() | :from_app_config
+          ClientConfig.t()
         ) :: {:ok, t()} | {:error, any()}
-  def get_by_invoice_id_and_return_id(invoice_id, return_id, p_client_config \\ :from_app_config) do
+  def get_by_invoice_id_and_return_id(
+        invoice_id,
+        return_id,
+        client_config \\ ClientConfig.from_application_config!()
+      ) do
     result =
-      with {:ok, client_config} <- Util.get_client_config(p_client_config),
-           {:ok, body, _, _} <-
+      with {:ok, body, _, _} <-
              client_config.adapter.get(
                "invoices/#{invoice_id}/invoice_returns/#{return_id}",
                client_config
@@ -50,12 +56,14 @@ defmodule Apruve.InvoiceReturn do
     end
   end
 
-  @spec all_by_invoice_id(Invoice.invoice_id(), ClientConfig.t() | :from_app_config) ::
+  @doc """
+  Get all invoice returns by invoice.
+  """
+  @spec all_by_invoice_id(Invoice.invoice_id(), ClientConfig.t()) ::
           {:ok, [t()]} | {:error, any()}
-  def all_by_invoice_id(invoice_id, p_client_config \\ :from_app_config) do
+  def all_by_invoice_id(invoice_id, client_config \\ ClientConfig.from_application_config!()) do
     result =
-      with {:ok, client_config} <- Util.get_client_config(p_client_config),
-           {:ok, body, _, _} <-
+      with {:ok, body, _, _} <-
              client_config.adapter.get(
                "invoices/#{invoice_id}/invoice_returns",
                client_config
@@ -78,10 +86,9 @@ defmodule Apruve.InvoiceReturn do
 
   Note that returns cannot be issued on invoices which have been cancelled or fully refunded.
   """
-  @spec create(t(), ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any}
-  def create(invoice_return, p_client_config \\ :from_app_config) do
+  @spec create(t(), ClientConfig.t()) :: {:ok, t()} | {:error, any}
+  def create(invoice_return, client_config \\ ClientConfig.from_application_config!()) do
     with :ok <- Util.validate_not_nil(invoice_return, [:invoice_id, :reason, :amount_cents]),
-         {:ok, client_config} <- Util.get_client_config(p_client_config),
          {:ok, json} <- to_json(invoice_return) do
       case client_config.adapter.post("invoice_returns", json, client_config) do
         {:ok, returned_json_string, 201, _} ->
@@ -101,6 +108,10 @@ defmodule Apruve.InvoiceReturn do
     Util.from_json(json_string, %InvoiceReturn{})
   end
 
+  @doc """
+  JSON string from InvoiceReturn struct.
+  """
+  @spec to_json(%InvoiceReturn{}) :: {:ok, String.t()} | {:error, any()}
   def to_json(%InvoiceReturn{} = invoice_return) do
     Util.to_json(invoice_return)
   end

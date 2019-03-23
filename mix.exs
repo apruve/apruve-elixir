@@ -4,12 +4,13 @@ defmodule Apruve.MixProject do
   def project do
     [
       app: :apruve,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       name: "Apruve",
       source_url: "https://github.com/elixir-ecto/postgrex",
       description: description(),
+      docs: docs(),
       package: package(),
       deps: deps()
     ]
@@ -27,12 +28,20 @@ defmodule Apruve.MixProject do
     [
       {:hackney, "~> 1.6"},
       {:jason, "~> 1.1"},
-      {:ex_doc, ">= 0.0.0", only: :dev}
+      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:dialyxir, "~> 0.5", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      logo: "logo.png",
+      main: "Apruve"
     ]
   end
 
   defp description() do
-   "The official Apruve plugin for Elixir"
+    "The official Apruve plugin for Elixir"
   end
 
   defp package() do

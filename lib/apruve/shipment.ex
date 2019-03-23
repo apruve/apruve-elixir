@@ -28,19 +28,21 @@ defmodule Apruve.Shipment do
   @type shipment_id :: String.t()
   @type t :: %Shipment{}
 
+  @doc """
+  Get a shipment by providing both an invoice id and shipment id.
+  """
   @spec get_by_invoice_id_and_shipment_id(
           Invoice.invoice_id(),
           shipment_id,
-          ClientConfig.t() | :from_app_config
+          ClientConfig.t()
         ) :: {:ok, t()} | {:error, any()}
   def get_by_invoice_id_and_shipment_id(
         invoice_id,
         shipment_id,
-        p_client_config \\ :from_app_config
+        client_config \\ ClientConfig.from_application_config!()
       ) do
     parsed_result =
-      with {:ok, client_config} <- Util.get_client_config(p_client_config),
-           {:ok, body, _, _} <-
+      with {:ok, body, _, _} <-
              client_config.adapter.get(
                "invoices/#{invoice_id}/shipments/#{shipment_id}",
                client_config
@@ -66,11 +68,11 @@ defmodule Apruve.Shipment do
 
   In the Shipment struct:
 
-  `shipped_at` should be set to a `DateTime` struct or an ISO 8601 string. E.g. "2018-01-27T12:48:34Z".
+  `shipped_at` should be set to a `DateTime` struct or an ISO 8601 string. E.g. `"2018-01-27T12:48:34Z"`.
   `status` should be set to "fulfilled" or "partial".
   """
-  @spec create(t(), ClientConfig.t() | :from_app_config) :: {:ok, t()} | {:error, any}
-  def create(shipment, p_client_config \\ :from_app_config) do
+  @spec create(t(), ClientConfig.t()) :: {:ok, t()} | {:error, any}
+  def create(shipment, client_config \\ ClientConfig.from_application_config!()) do
     with :ok <-
            Util.validate_not_nil(shipment, [
              :invoice_id,
@@ -79,7 +81,6 @@ defmodule Apruve.Shipment do
              :amount_cents,
              :status
            ]),
-         {:ok, client_config} <- Util.get_client_config(p_client_config),
          {:ok, json} <- to_json(shipment) do
       case client_config.adapter.post(
              "invoices/#{shipment.invoice_id}/shipments",
@@ -99,7 +100,7 @@ defmodule Apruve.Shipment do
   end
 
   @doc """
-  JSON string from Shipment struct.
+  JSON string from shipment struct.
   """
   @spec to_json(%Shipment{}) :: {:ok, String.t()} | {:error, any()}
   def to_json(%Shipment{} = shipment) do

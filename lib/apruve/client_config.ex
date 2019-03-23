@@ -35,7 +35,15 @@ defmodule Apruve.ClientConfig do
      }}
   end
 
-  @doc false
+  @doc """
+  Get a `ClientConfig` from the application configuration.
+
+  Returns a `ClientConfig` struct tagged with `:ok` in a tuple if successful.
+
+  See `from_application_config!/0` to get it without the tuple and raising an error
+  if unsuccessful.
+  """
+  @spec from_application_config() :: {:ok, t()} | {:error, atom}
   def from_application_config() do
     case Application.get_env(:apruve, :client_config) do
       nil ->
@@ -46,6 +54,24 @@ defmodule Apruve.ClientConfig do
 
       _ ->
         {:error, :incorrect_configuration}
+    end
+  end
+
+  @doc """
+  Get a ClientConfig from the application configuration.
+
+  Raises an error if a correct configuration is not found.
+
+  See `from_application_config/0` to get an {:ok, ClientConfig} tuple instead
+  or an {:error, ...} tuple instead of a raised error.
+  """
+  def from_application_config!() do
+    case from_application_config() do
+      {:ok, client_config} ->
+        client_config
+
+      error ->
+        raise "Could not get client config from app configuration: #{inspect(error)}"
     end
   end
 end

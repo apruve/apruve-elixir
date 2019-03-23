@@ -1,6 +1,8 @@
 defmodule Apruve.Adapters.Hackney do
   @moduledoc """
   An HTTPS adapter that uses Hackney for HTTPS requests.
+
+  Implements `Apruve.Adapter`.
   """
 
   require Logger

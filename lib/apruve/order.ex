@@ -44,9 +44,8 @@ defmodule Apruve.Order do
       iex> order.id
       "02b263350ba2a8f59b0d6e00645cc251"
   """
-  @spec get(order_id, ClientConfig.t() | :from_app_config) :: {:ok, Order.t()} | {:error, any()}
-  def get(order_id, p_client_config \\ :from_app_config) do
-    {:ok, client_config} = Util.get_client_config(p_client_config)
+  @spec get(order_id, ClientConfig.t()) :: {:ok, Order.t()} | {:error, any()}
+  def get(order_id, client_config \\ ClientConfig.from_application_config!()) do
     url_part = "orders/#{order_id}"
     adapter = client_config.adapter
     result = adapter.get(url_part, client_config)
@@ -72,10 +71,9 @@ defmodule Apruve.Order do
   @doc """
   Create an order.
   """
-  @spec create(t, ClientConfig.t() | :from_app_config) :: {:ok, t} | {:error, any}
-  def create(order, p_client_config \\ :from_app_config) do
+  @spec create(t, ClientConfig.t()) :: {:ok, t} | {:error, any}
+  def create(order, client_config \\ ClientConfig.from_application_config!()) do
     with :ok <- validate_order(order),
-         {:ok, client_config} <- Util.get_client_config(p_client_config),
          {:ok, order_json} <- to_json(order) do
       case client_config.adapter.post("orders", order_json, client_config) do
         {:ok, json, 201, _} ->
@@ -94,10 +92,8 @@ defmodule Apruve.Order do
 
   Results can be limited to the first 25 orders by the server side API.
   """
-  @spec all(ClientConfig.t() | :from_app_config) :: {:ok, [Order.t()]} | {:error, any()}
-  def all(merchant_order_id \\ nil, p_client_config \\ :from_app_config) do
-    {:ok, client_config} = Util.get_client_config(p_client_config)
-
+  @spec all(ClientConfig.t()) :: {:ok, [Order.t()]} | {:error, any()}
+  def all(merchant_order_id \\ nil, client_config \\ ClientConfig.from_application_config!()) do
     url_part =
       case merchant_order_id do
         nil ->
@@ -158,6 +154,9 @@ defmodule Apruve.Order do
     {:ok, order_with_order_items}
   end
 
+  @doc """
+  Convert `Apruve.Order` struct to JSON.
+  """
   @spec to_json(%Order{}) :: {:ok, String.t()} | {:error, any()}
   def to_json(%Order{} = order) do
     Util.to_json(%{order | order_items: Util.maps_from_struct_list(order.order_items)})
@@ -186,19 +185,17 @@ defmodule Apruve.Order do
   @doc """
   Calculates the secure hash.
 
-  Takes an order and one of: an API key, an `Apruve.ClientConfig` struct or `:from_app_config`
+  Takes an order and one of: an API key, an `Apruve.ClientConfig` struct.
 
   See https://docs.apruve.com/docs/merchant-integration-tutorial-1 for more details.
   """
-  @spec secure_hash_for_order_and_api_key(t(), String.t() | ClientConfig.t() | :from_app_config) ::
+  @spec secure_hash_for_order_and_api_key(t(), String.t() | ClientConfig.t()) ::
           String.t()
   def secure_hash_for_order_and_api_key(order, api_key_or_conf) when is_binary(api_key_or_conf) do
     __MODULE__.SecureHash.secure_hash_for_order_and_api_key(order, api_key_or_conf)
   end
 
-  def secure_hash_for_order_and_api_key(order, p_client_config) do
-    with {:ok, client_config} <- Util.get_client_config(p_client_config) do
-      __MODULE__.SecureHash.secure_hash_for_order_and_api_key(order, client_config.api_key)
-    end
+  def secure_hash_for_order_and_api_key(order, %{api_key: api_key}) do
+    __MODULE__.SecureHash.secure_hash_for_order_and_api_key(order, api_key)
   end
 end
